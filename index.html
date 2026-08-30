@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0a0a0a">
+<title>Скорость и ограничение</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:,">
+</head>
+<body>
+
+<main class="screen" id="screen">
+
+  <button class="control" id="toggle" type="button" aria-live="off">Старт</button>
+
+  <section class="speed" aria-label="Текущая скорость">
+    <div class="speed-value" id="speedValue">--</div>
+    <div class="speed-unit">км/ч</div>
+  </section>
+
+  <section class="limit" aria-label="Ограничение скорости">
+    <div class="sign" id="sign" data-state="nodata" role="img" aria-label="Нет данных об ограничении">
+      <svg class="sign-svg" viewBox="0 0 100 100" aria-hidden="true">
+        <defs>
+          <!-- Полосы «Aufhebung» обрезаются по внутреннему белому кругу (r = 42 − 14/2). -->
+          <clipPath id="signInner"><circle cx="50" cy="50" r="35"></circle></clipPath>
+        </defs>
+        <circle class="sign-face" cx="50" cy="50" r="49"></circle>
+        <circle class="sign-ring" cx="50" cy="50" r="42"></circle>
+        <g class="sign-stripes" clip-path="url(#signInner)">
+          <line x1="0" y1="60" x2="60" y2="0"></line>
+          <line x1="0" y1="80" x2="80" y2="0"></line>
+          <line x1="0" y1="100" x2="100" y2="0"></line>
+          <line x1="20" y1="100" x2="100" y2="20"></line>
+          <line x1="40" y1="100" x2="100" y2="40"></line>
+        </g>
+        <text class="sign-text" id="signText" x="50" y="51">—</text>
+      </svg>
+    </div>
+    <div class="sign-caption" id="signCaption"></div>
+  </section>
+
+  <div class="status" id="status" role="status"></div>
+
+  <footer class="meta">
+    <span class="meta-item" id="metaAccuracy">точность: —</span>
+    <span class="meta-item" id="metaRoad">дорога: —</span>
+    <span class="meta-item offline" id="metaOffline" hidden>офлайн</span>
+    <span class="meta-item" id="metaSource"></span>
+    <span class="disclaimer">Справочные данные OpenStreetMap. Приоритет — за дорожными знаками.</span>
+  </footer>
+
+</main>
+
+<script type="module" src="app.js"></script>
+<noscript>
+  <p style="color:#fff;padding:24px;font:16px system-ui">
+    Для работы приложения нужен JavaScript.
+  </p>
+</noscript>
+
+</body>
+</html>

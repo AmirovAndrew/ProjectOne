@@ -1,0 +1,207 @@
+/* style.css — тёмная высококонтрастная тема для экрана автомобиля. */
+
+:root {
+  --bg: #0a0a0a;
+  --fg: #f2f2f2;
+  --dim: #8a8a8a;
+  --warn: #ffd400;
+  --danger: #ff3b30;
+  --sign-red: #d40000;
+  --sign-gray: #6b6b6b;
+  --sign-size: max(200px, min(26vw, 320px));
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  /* Экран машины трогают руками: случайное выделение текста ни к чему. */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.screen {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: clamp(16px, 4vw, 64px);
+  height: 100%;
+  padding: clamp(12px, 2.5vw, 32px);
+  padding-bottom: clamp(52px, 8vh, 84px);
+}
+
+/* --- Кнопка управления --- */
+
+.control {
+  position: absolute;
+  top: clamp(10px, 2vh, 24px);
+  left: clamp(10px, 2vw, 24px);
+  z-index: 2;
+  padding: 22px 40px;
+  border: 2px solid #3a3a3a;
+  border-radius: 14px;
+  background: #171717;
+  color: var(--fg);
+  font: 600 32px/1 system-ui, sans-serif;
+  cursor: pointer;
+  transition: padding .25s ease, font-size .25s ease, opacity .25s ease;
+}
+
+.control:active { background: #242424; }
+
+/* После запуска кнопка уменьшается и приглушается, чтобы не отвлекать. */
+.screen.running .control {
+  padding: 10px 16px;
+  font-size: 17px;
+  opacity: .45;
+}
+
+/* --- Скорость --- */
+
+.speed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.speed-value {
+  font-size: max(180px, min(30vw, 340px));
+  font-weight: 700;
+  line-height: .95;
+  letter-spacing: -0.02em;
+  /* Моноширинные цифры: значение не «прыгает» при смене разрядов. */
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  color: var(--fg);
+  transition: color .2s linear;
+}
+
+.speed-value.warn { color: var(--warn); }
+.speed-value.danger { color: var(--danger); }
+.speed-value.stale { color: var(--dim); }
+
+.speed-unit {
+  margin-top: -.2em;
+  font-size: clamp(20px, 2.4vw, 34px);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+/* --- Знак ограничения --- */
+
+.limit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.sign {
+  width: var(--sign-size);
+  height: var(--sign-size);
+}
+
+.sign-svg { width: 100%; height: 100%; display: block; }
+
+.sign-face { fill: #ffffff; }
+.sign-ring { fill: none; stroke: var(--sign-red); stroke-width: 14; }
+.sign-stripes { display: none; stroke: #1a1a1a; stroke-width: 5; }
+
+.sign-text {
+  fill: #000000;
+  font: 700 44px/1 system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+/* Внутренний белый круг имеет диаметр 70 единиц viewBox — под трёхзначные
+   значения кегль уменьшается, иначе цифры вылезают на красную окантовку. */
+.sign[data-digits="3"] .sign-text { font-size: 33px; }
+.sign[data-digits="1"] .sign-text { font-size: 50px; }
+
+/* Число — обычный знак (состояние по умолчанию). */
+
+/* «Без ограничения» — немецкий Aufhebung: серая окантовка и диагонали. */
+.sign[data-state="none"] .sign-ring { stroke: var(--sign-gray); }
+.sign[data-state="none"] .sign-stripes { display: block; }
+.sign[data-state="none"] .sign-text { display: none; }
+
+/* «Нет данных» — серый круг с прочерком. */
+.sign[data-state="nodata"] .sign-face { fill: #2a2a2a; }
+.sign[data-state="nodata"] .sign-ring { stroke: #4a4a4a; }
+.sign[data-state="nodata"] .sign-text { fill: var(--dim); }
+
+/* «Переменное» — тоже без числа, но отличается подписью. */
+.sign[data-state="variable"] .sign-face { fill: #2a2a2a; }
+.sign[data-state="variable"] .sign-ring { stroke: var(--warn); }
+.sign[data-state="variable"] .sign-text { fill: var(--warn); }
+
+/* Implicit-значение (выведено из таблицы, а не из тега) — пунктирная окантовка. */
+.sign[data-implicit="true"] .sign-ring { stroke-dasharray: 10 7; }
+
+.sign-caption {
+  min-height: 1.2em;
+  font-size: clamp(16px, 1.8vw, 24px);
+  color: var(--dim);
+  text-align: center;
+}
+
+/* --- Статус и подвал --- */
+
+.status {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(38px, 6.5vh, 62px);
+  transform: translateX(-50%);
+  max-width: 70vw;
+  font-size: clamp(15px, 1.5vw, 20px);
+  line-height: 1.35;
+  text-align: center;
+  color: var(--warn);
+}
+
+.status:empty { display: none; }
+
+.meta {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 18px;
+  padding: 8px clamp(12px, 2.5vw, 32px);
+  font-size: clamp(11px, 1.05vw, 14px);
+  color: var(--dim);
+}
+
+.meta-item[hidden] { display: none; }
+.meta .offline { color: var(--danger); }
+.meta .disclaimer { margin-left: auto; text-align: right; }
+
+/* Портретная ориентация (телефон для отладки) — знак под скоростью. */
+@media (orientation: portrait) {
+  .screen {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+    justify-items: center;
+  }
+  .speed-value { font-size: max(180px, min(46vw, 300px)); }
+  .meta .disclaimer { margin-left: 0; text-align: left; }
+}
