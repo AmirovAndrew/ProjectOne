@@ -93,6 +93,9 @@ export class OverpassClient {
     this.cache = new WayCache(options.cacheMax, options.cacheTtl);
     this.distanceFn = options.distanceFn || haversineMeters;
     this.fetchImpl = options.fetchImpl || ((...args) => fetch(...args));
+    // Единый источник времени: все решения о лимитах и возрасте данных
+    // принимаются по нему, поэтому поведение клиента детерминировано.
+    this.now = options.now || (() => Date.now());
 
     this.paused = false;
     this.pending = false;
@@ -111,23 +114,23 @@ export class OverpassClient {
     this.paused = Boolean(paused);
   }
 
-  getWays(now = Date.now()) {
+  getWays(now = this.now()) {
     return this.cache.values(now);
   }
 
   /** Сколько миллисекунд прошло с последнего успешного ответа. */
-  dataAge(now = Date.now()) {
+  dataAge(now = this.now()) {
     return this.lastSuccessTs ? now - this.lastSuccessTs : Infinity;
   }
 
   /** Число запросов в скользящем окне; попутно подрезает журнал. */
-  requestsInWindow(now = Date.now()) {
+  requestsInWindow(now = this.now()) {
     this.requestLog = this.requestLog.filter((ts) => now - ts < REQUEST_WINDOW_MS);
     return this.requestLog.length;
   }
 
   /** Нужен ли новый запрос для этой точки (ТЗ 3.6). */
-  shouldRequest(lat, lon, now = Date.now()) {
+  shouldRequest(lat, lon, now = this.now()) {
     if (this.paused || this.pending) return false;
     if (now < this.nextAllowedTs) return false;
     if (now - this.lastRequestTs < MIN_REQUEST_INTERVAL_MS) return false;
@@ -148,13 +151,13 @@ export class OverpassClient {
    * приложение обязано продолжать работать (ТЗ 3.6, критерий 8.6).
    * @returns {Promise<boolean>} true, если кэш обновился
    */
-  async update(lat, lon, now = Date.now()) {
+  async update(lat, lon, now = this.now()) {
     if (!this.shouldRequest(lat, lon, now)) return false;
-    return this.request(lat, lon);
+    return this.request(lat, lon, now);
   }
 
-  async request(lat, lon) {
-    const started = Date.now();
+  async request(lat, lon, now = this.now()) {
+    const started = now;
     this.pending = true;
     this.lastRequestTs = started;
     this.requestLog.push(started);
@@ -174,7 +177,8 @@ export class OverpassClient {
 
       const json = await response.json();
       const elements = Array.isArray(json.elements) ? json.elements : [];
-      const ts = Date.now();
+      // Свежесть данных считаем по моменту получения ответа, а не отправки запроса.
+      const ts = this.now();
       for (const element of elements) {
         if (element.type === 'way' && Array.isArray(element.geometry)) this.cache.put(element, ts);
       }
@@ -193,7 +197,7 @@ export class OverpassClient {
       this.lastError = error && error.name === 'AbortError' ? 'timeout' : 'network';
       const delay = BACKOFF_STEPS_MS[Math.min(this.failures, BACKOFF_STEPS_MS.length - 1)];
       this.failures += 1;
-      this.nextAllowedTs = Date.now() + delay;
+      this.nextAllowedTs = this.now() + delay;
       return false;
     } finally {
       clearTimeout(timer);

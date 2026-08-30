@@ -1,0 +1,19 @@
+{
+  "name": "speed-limit-tests",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Тестовый стенд приложения «Скорость и ограничение». Держится отдельно от приложения: в рантайме у приложения зависимостей нет.",
+  "scripts": {
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "node --test \"unit/*.test.js\"",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui",
+    "report": "playwright show-report",
+    "serve": "node server.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1"
+  }
+}

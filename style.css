@@ -123,15 +123,16 @@ body {
 
 .sign-text {
   fill: #000000;
-  font: 700 44px/1 system-ui, sans-serif;
+  font: 700 42px/1 system-ui, sans-serif;
   font-variant-numeric: tabular-nums;
   text-anchor: middle;
   dominant-baseline: middle;
 }
 
-/* Внутренний белый круг имеет диаметр 70 единиц viewBox — под трёхзначные
-   значения кегль уменьшается, иначе цифры вылезают на красную окантовку. */
-.sign[data-digits="3"] .sign-text { font-size: 33px; }
+/* Внутренний белый круг имеет диаметр 70 единиц viewBox. Кегль подобран так,
+   чтобы двух- и трёхзначные значения занимали одинаковую ширину (~58 единиц)
+   и не наезжали на красную окантовку. */
+.sign[data-digits="3"] .sign-text { font-size: 28px; }
 .sign[data-digits="1"] .sign-text { font-size: 50px; }
 
 /* Число — обычный знак (состояние по умолчанию). */

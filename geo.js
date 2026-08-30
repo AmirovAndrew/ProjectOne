@@ -58,7 +58,7 @@ export class SpeedTracker {
       accuracy: Number.isFinite(c.accuracy) ? c.accuracy : Infinity,
       heading: Number.isFinite(c.heading) ? c.heading : null,
       rawSpeed: Number.isFinite(c.speed) ? c.speed : null,
-      timestamp: position.timestamp || Date.now(),
+      timestamp: Number.isFinite(position.timestamp) ? position.timestamp : Date.now(),
     };
 
     const previous = this.lastFix;
