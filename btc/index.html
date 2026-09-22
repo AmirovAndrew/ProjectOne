@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BTC / USD</title>
+  <style>
+    :root { --bg: #f7f7f5; --fg: #1a1a1a; --muted: #6b6b6b; --accent: #f7931a; --err: #b3261e; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #111; --fg: #f2f2f2; --muted: #9a9a9a; --err: #f28b82; }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: grid; place-items: center;
+      background: var(--bg); color: var(--fg);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      text-align: center; padding: 16px;
+    }
+    h1 { margin: 0 0 8px; font-size: 1rem; font-weight: 600; letter-spacing: .08em; color: var(--muted); }
+    h1 span { color: var(--accent); }
+    #price { font-size: clamp(2.5rem, 12vw, 6rem); font-weight: 700; font-variant-numeric: tabular-nums; }
+    #status { margin-top: 8px; color: var(--muted); font-size: .9rem; min-height: 1.2em; }
+    #status.error { color: var(--err); }
+    button {
+      margin-top: 20px; padding: 8px 18px; border: 1px solid var(--muted); border-radius: 6px;
+      background: transparent; color: var(--fg); font: inherit; cursor: pointer;
+    }
+    button:disabled { opacity: .5; cursor: default; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1><span>₿</span> BTC / USD</h1>
+    <div id="price">—</div>
+    <div id="status">Loading…</div>
+    <button id="refresh" type="button">Refresh</button>
+  </main>
+
+  <script>
+    const REFRESH_MS = 30000;
+    const priceEl = document.getElementById('price');
+    const statusEl = document.getElementById('status');
+    const button = document.getElementById('refresh');
+    const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+
+    // Tried in order; the first one that answers wins.
+    const sources = [
+      {
+        name: 'Coinbase',
+        url: 'https://api.coinbase.com/v2/prices/BTC-USD/spot',
+        parse: (d) => parseFloat(d.data.amount),
+      },
+      {
+        name: 'CoinGecko',
+        url: 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd',
+        parse: (d) => d.bitcoin.usd,
+      },
+    ];
+
+    async function fetchPrice() {
+      for (const source of sources) {
+        try {
+          const res = await fetch(source.url, { cache: 'no-store' });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const price = source.parse(await res.json());
+          if (Number.isFinite(price)) return { price, source: source.name };
+        } catch (e) {
+          console.warn(source.name + ' failed:', e);
+        }
+      }
+      throw new Error('All sources failed');
+    }
+
+    async function update() {
+      button.disabled = true;
+      try {
+        const { price, source } = await fetchPrice();
+        priceEl.textContent = usd.format(price);
+        document.title = usd.format(price) + ' · BTC / USD';
+        statusEl.className = '';
+        statusEl.textContent = 'Updated ' + new Date().toLocaleTimeString() + ' · via ' + source;
+      } catch (e) {
+        statusEl.className = 'error';
+        statusEl.textContent = 'Could not load the rate. Retrying in 30 s.';
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    button.addEventListener('click', update);
+    update();
+    setInterval(update, REFRESH_MS);
+  </script>
+</body>
+</html>
