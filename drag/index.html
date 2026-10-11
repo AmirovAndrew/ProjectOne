@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Launch Control</title>
+  <meta name="description" content="0–100 km/h times of 25 cars compared side by side on a simulated quarter-mile drag strip.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;700;800&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="masthead">
+    <div class="wrap masthead-row">
+      <div>
+        <p class="eyebrow">0–100 km/h · 1/4 mile · 402.3 m</p>
+        <h1>Launch Control</h1>
+      </div>
+      <p class="lede">Pick up to four cars and launch them side by side. Each run is a physics simulation calibrated to the car's published 0–100 km/h time, so the gaps you see on the strip are the real gaps.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- ── The race ─────────────────────────────────────────────────────── -->
+    <section class="race" aria-labelledby="race-title">
+      <h2 id="race-title" class="visually-hidden">Drag race</h2>
+
+      <div class="lanes-picker" id="lanes-picker"></div>
+
+      <div class="controls">
+        <div class="tree" id="tree" aria-hidden="true">
+          <div class="tree-row"><span class="bulb stage" data-bulb="pre"></span><span class="bulb stage" data-bulb="pre"></span></div>
+          <div class="tree-row"><span class="bulb stage" data-bulb="stage"></span><span class="bulb stage" data-bulb="stage"></span></div>
+          <div class="tree-row"><span class="bulb amber" data-bulb="amber"></span><span class="bulb amber" data-bulb="amber"></span></div>
+          <div class="tree-row"><span class="bulb amber" data-bulb="amber"></span><span class="bulb amber" data-bulb="amber"></span></div>
+          <div class="tree-row"><span class="bulb amber" data-bulb="amber"></span><span class="bulb amber" data-bulb="amber"></span></div>
+          <div class="tree-row"><span class="bulb green" data-bulb="green"></span><span class="bulb green" data-bulb="green"></span></div>
+        </div>
+        <div class="control-stack">
+          <div class="button-row">
+            <button type="button" id="run" class="btn primary">Launch</button>
+            <button type="button" id="reset" class="btn">Reset</button>
+          </div>
+          <div class="seg" role="radiogroup" aria-label="Playback speed" id="speed">
+            <button type="button" role="radio" aria-checked="false" data-speed="0.25">¼×</button>
+            <button type="button" role="radio" aria-checked="false" data-speed="0.5">½×</button>
+            <button type="button" role="radio" aria-checked="true" data-speed="1">1×</button>
+            <button type="button" role="radio" aria-checked="false" data-speed="2">2×</button>
+          </div>
+        </div>
+        <div class="clock" aria-live="off">
+          <span class="clock-label">Since green</span>
+          <span class="clock-value" id="clock">0.000</span>
+          <span class="clock-unit">s</span>
+        </div>
+      </div>
+
+      <div class="strip-frame">
+        <canvas id="strip" class="strip" role="img" aria-label="Top-down view of the drag strip with the selected cars"></canvas>
+        <canvas id="mini" class="mini" aria-hidden="true"></canvas>
+        <label class="scrub" for="scrub">
+          <span class="visually-hidden">Race time</span>
+          <input type="range" id="scrub" min="0" max="1000" step="1" value="0">
+        </label>
+      </div>
+
+      <div class="boards" id="boards" aria-live="polite"></div>
+
+      <div class="slips" id="slips"></div>
+    </section>
+
+    <!-- ── Speed trace ──────────────────────────────────────────────────── -->
+    <section class="panel" aria-labelledby="trace-title">
+      <div class="panel-head">
+        <h2 id="trace-title">Speed over time</h2>
+        <p>Modelled speed of each car in the race, from green light to the end of the quarter mile. Dots mark the moment each car reaches 100 km/h.</p>
+      </div>
+      <div class="legend" id="trace-legend"></div>
+      <div class="chart" id="trace"></div>
+    </section>
+
+    <!-- ── Ranking ──────────────────────────────────────────────────────── -->
+    <section class="panel" aria-labelledby="rank-title">
+      <div class="panel-head">
+        <h2 id="rank-title">0–100 km/h, all cars</h2>
+        <p>Fastest first. Use the lane buttons to send a car to the strip.</p>
+      </div>
+      <div class="chips" id="segments" role="group" aria-label="Filter by segment"></div>
+      <div class="ranking" id="ranking"></div>
+    </section>
+
+    <!-- ── Data ─────────────────────────────────────────────────────────── -->
+    <section class="panel" aria-labelledby="data-title">
+      <div class="panel-head">
+        <h2 id="data-title">The numbers</h2>
+        <p>Published figures next to what the model predicts. Model columns fill in as each car is calibrated.</p>
+      </div>
+      <div class="table-scroll">
+        <table class="data" id="data-table">
+          <thead>
+            <tr>
+              <th scope="col">Car</th>
+              <th scope="col" class="num">0–100<br><small>km/h, s</small></th>
+              <th scope="col" class="num">Power<br><small>kW</small></th>
+              <th scope="col" class="num">Weight<br><small>kg</small></th>
+              <th scope="col" class="num">kg / kW</th>
+              <th scope="col" class="num">Model 60 ft<br><small>s</small></th>
+              <th scope="col" class="num">Model 1/4<br><small>s @ km/h</small></th>
+              <th scope="col" class="num">Tested 1/4<br><small>s @ km/h</small></th>
+              <th scope="col">Sources</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="method">
+        <h3>How the simulation works</h3>
+        <p>Each car is a point mass with three limits on its acceleration: tyre grip off the line, engine or motor power (acceleration falls as speed rises), and air drag plus rolling resistance. Grip and power are solved for every car so that the model hits its published 0–100 km/h time exactly. When a second published figure exists, an official 0–200 km/h time or a quarter-mile time from an instrumented magazine test, it pins down the balance between grip and power. Otherwise grip is set to a typical value for the drivetrain and power is solved from the 0–100 time alone.</p>
+        <p>Quarter-mile times follow drag-racing convention: the clock starts after 1 ft of rollout, and trap speed is the average over the last 66 ft. All cars react to the green light instantly, so the first car to the finish line wins.</p>
+        <p>Manufacturer 0–100 km/h claims and magazine tests are measured differently and on different days, so treat small differences between cars as approximate. Gear changes are averaged out rather than shown as individual steps.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap foot">
+    <p>Figures collected October 2026 from manufacturer specifications and the road tests linked in the table.</p>
+  </footer>
+
+  <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+// data.js — the cars, their published figures and where each figure comes from.
+//
+// t100     0–100 km/h, s. The headline figure the site compares. Manufacturer
+//          claims unless the source says otherwise.
+// anchor   optional second published figure used to calibrate the model:
+//          { kmh: 200, t } — official 0–200 km/h, or
+//          { metres: QUARTER_MILE, t } — quarter-mile ET from an instrumented test
+//          (1 ft rollout, as on a drag strip).
+// test     published quarter-mile result shown next to the model's prediction.
+// kw, kg   peak system power and kerb weight (manufacturer figures, rounded).
+// cda      drag area Cd·A, m² (published Cd × estimated frontal area).
+// top      top speed, km/h (limited where the maker limits it).
+// len, wid body length and width, m — cars are drawn to scale on the strip.
+
+import { QUARTER_MILE } from './physics.js';
+
+const SRC = {
+  rimac: { label: 'Rimac press release: 23 records in a day (Dewesoft & Racelogic verified, 2023)', url: 'https://www.rimac-newsroom.com/press-releases/rimac-automobili/rimac-nevera-sets-23-performance-records-in-a-single-day' },
+  lucid: { label: 'Car and Driver test via 0-60specs (9.10 s @ 155 mph)', url: 'https://www.0-60specs.com/lucid/air-0-60-times' },
+  plaid: { label: 'MotorTrend test (9.25 s @ 152.6 mph) via Not a Tesla App', url: 'https://www.notateslaapp.com/news/1146/fastest-car-motortrend-has-ever-tested-tesla-model-s-plaid-top-speed-and-specs' },
+  chiron: { label: 'Bugatti figures: 0–100 2.4 s, 0–200 5.8 s, 0–300 12.1 s (Blick)', url: 'https://www.blick.ch/auto/news_n_trends/eine-runde-im-bugatti-chiron-super-sport-tempo-440-nur-mit-erlaubnis-id16950591.html' },
+  sf90: { label: 'Car and Driver test: 9.5 s @ 148 mph (Carscoops)', url: 'https://www.carscoops.com/2021/07/ferrari-sf90-stradale-hits-60-mph-in-2-0-sec-becomes-c-ds-quickest-production-car-ever-tested/' },
+  turboS: { label: 'Car and Driver test: 10.1 s @ 137 mph', url: 'https://sports.yahoo.com/640-hp-2021-porsche-911-164900225.html' },
+  z06: { label: 'Car and Driver test: 10.5 s @ 131 mph; Chevrolet claims 2.6 s 0–60 mph', url: 'https://news.yahoo.com/2023-c8-corvette-z06-does-163800005.html' },
+  m3p: { label: 'Car and Driver test: 11.0 s @ 125 mph', url: 'https://www.aol.com/2024-tesla-model-3-performance-145800834.html' },
+  ioniq: { label: 'Car and Driver test: 11.1 s @ 123 mph', url: 'https://uk.news.yahoo.com/2025-hyundai-ioniq-5-n-180000719.html' },
+  yaris: { label: 'evo: 0–62 mph 5.5 s', url: 'https://cdn2.evo.co.uk/toyota/toyota-gr-yaris/204263/toyota-gr-yaris-review-performance-and-0-60-time' },
+  typeR: { label: 'City AM review: 0–62 mph 5.4 s', url: 'https://www.cityam.com/honda-civic-type-r-2023-review/' },
+  panda: { label: 'autotijd.be: 14.7 s, 155 km/h', url: 'https://autotijd.be/en/performance/fiat/panda/10-hybrid-70-hp-manual' },
+  granta: { label: 'autospot.ru spec sheet: 11.2 s, 1075 kg', url: 'https://autospot.ru/brands/lada/granta/hatchback/spec/acceleration-to-100/' },
+  maker: { label: 'Manufacturer specification' },
+};
+
+export const CARS = [
+  // ── Hypercars & EV super-saloons ──────────────────────────────────────────
+  { id: 'nevera', name: 'Rimac Nevera', variant: '2023 · 1,914 hp quad-motor EV', segment: 'Hypercar', drive: 'AWD', energy: 'EV',
+    kw: 1408, kg: 2300, top: 412, cda: 0.59, len: 4.75, wid: 1.99,
+    t100: 1.81, t100Src: SRC.rimac,
+    anchor: { metres: QUARTER_MILE, t: 8.25, src: SRC.rimac },
+    test: { et: 8.25, src: SRC.rimac } },
+  { id: 'sapphire', name: 'Lucid Air Sapphire', variant: '2025 · 1,234 hp tri-motor EV', segment: 'Super saloon', drive: 'AWD', energy: 'EV',
+    kw: 920, kg: 2375, top: 330, cda: 0.49, len: 4.98, wid: 1.94,
+    t100: 2.0, t100Src: SRC.maker,
+    anchor: { metres: QUARTER_MILE, t: 9.10, src: SRC.lucid },
+    test: { et: 9.10, trapMph: 155, src: SRC.lucid } },
+  { id: 'plaid', name: 'Tesla Model S Plaid', variant: '2021 · 1,020 hp tri-motor EV', segment: 'Super saloon', drive: 'AWD', energy: 'EV',
+    kw: 750, kg: 2162, top: 282, cda: 0.49, len: 5.02, wid: 1.96,
+    t100: 2.1, t100Src: SRC.maker,
+    anchor: { metres: QUARTER_MILE, t: 9.25, src: SRC.plaid },
+    test: { et: 9.25, trapMph: 152.6, src: SRC.plaid } },
+  { id: 'chiron', name: 'Bugatti Chiron Super Sport', variant: '2021 · 8.0 W16 quad-turbo', segment: 'Hypercar', drive: 'AWD', energy: 'ICE',
+    kw: 1177, kg: 1995, top: 440, cda: 0.66, len: 4.62, wid: 2.04,
+    t100: 2.4, t100Src: SRC.chiron,
+    anchor: { kmh: 200, t: 5.8, src: SRC.chiron } },
+  { id: 'sf90', name: 'Ferrari SF90 Stradale', variant: '2020 · V8 plug-in hybrid', segment: 'Supercar', drive: 'AWD', energy: 'Hybrid',
+    kw: 735, kg: 1670, top: 340, cda: 0.67, len: 4.71, wid: 1.97,
+    t100: 2.5, t100Src: SRC.maker,
+    anchor: { metres: QUARTER_MILE, t: 9.5, src: SRC.sf90 },
+    test: { et: 9.5, trapMph: 148, src: SRC.sf90 } },
+  { id: 'revuelto', name: 'Lamborghini Revuelto', variant: '2024 · V12 plug-in hybrid', segment: 'Supercar', drive: 'AWD', energy: 'Hybrid',
+    kw: 747, kg: 1880, top: 350, cda: 0.75, len: 4.95, wid: 2.03,
+    t100: 2.5, t100Src: SRC.maker,
+    anchor: { kmh: 200, t: 7.0, src: SRC.maker } },
+  { id: 'taycan', name: 'Porsche Taycan Turbo S', variant: '2025 · dual-motor EV', segment: 'Super saloon', drive: 'AWD', energy: 'EV',
+    kw: 700, kg: 2295, top: 260, cda: 0.51, len: 4.96, wid: 1.97,
+    t100: 2.4, t100Src: SRC.maker },
+  { id: 'turbos', name: 'Porsche 911 Turbo S', variant: '992 · 3.8 flat-six twin-turbo', segment: 'Supercar', drive: 'AWD', energy: 'ICE',
+    kw: 478, kg: 1640, top: 330, cda: 0.68, len: 4.54, wid: 1.90,
+    t100: 2.7, t100Src: SRC.maker,
+    anchor: { metres: QUARTER_MILE, t: 10.1, src: SRC.turboS },
+    test: { et: 10.1, trapMph: 137, src: SRC.turboS } },
+  { id: '750s', name: 'McLaren 750S', variant: '2023 · 4.0 V8 twin-turbo', segment: 'Supercar', drive: 'RWD', energy: 'ICE',
+    kw: 552, kg: 1480, top: 332, cda: 0.62, len: 4.57, wid: 1.93,
+    t100: 2.8, t100Src: SRC.maker,
+    anchor: { kmh: 200, t: 7.2, src: SRC.maker } },
+  { id: 'z06', name: 'Chevrolet Corvette Z06', variant: 'C8 · 5.5 flat-plane V8', segment: 'Supercar', drive: 'RWD', energy: 'ICE',
+    kw: 500, kg: 1660, top: 312, cda: 0.75, len: 4.69, wid: 2.02,
+    t100: 2.9, t100Src: { label: 'Estimated from Chevrolet’s 2.6 s 0–60 mph claim (US claims include 1 ft rollout)', url: SRC.z06.url },
+    anchor: { metres: QUARTER_MILE, t: 10.5, src: SRC.z06 },
+    test: { et: 10.5, trapMph: 131, src: SRC.z06 } },
+
+  // ── Sports & performance ─────────────────────────────────────────────────
+  { id: 'm3p', name: 'Tesla Model 3 Performance', variant: '2024 · dual-motor EV', segment: 'Performance', drive: 'AWD', energy: 'EV',
+    kw: 460, kg: 1836, top: 262, cda: 0.49, len: 4.72, wid: 1.85,
+    t100: 3.1, t100Src: SRC.maker,
+    anchor: { metres: QUARTER_MILE, t: 11.0, src: SRC.m3p },
+    test: { et: 11.0, trapMph: 125, src: SRC.m3p } },
+  { id: 'gt3', name: 'Porsche 911 GT3', variant: '992 · 4.0 flat-six, PDK', segment: 'Performance', drive: 'RWD', energy: 'ICE',
+    kw: 375, kg: 1435, top: 318, cda: 0.70, len: 4.57, wid: 1.85,
+    t100: 3.4, t100Src: SRC.maker,
+    anchor: { kmh: 200, t: 10.8, src: SRC.maker } },
+  { id: 'm3', name: 'BMW M3 Competition xDrive', variant: 'G80 · 3.0 straight-six', segment: 'Performance', drive: 'AWD', energy: 'ICE',
+    kw: 390, kg: 1780, top: 250, cda: 0.70, len: 4.80, wid: 1.90,
+    t100: 3.5, t100Src: SRC.maker,
+    anchor: { kmh: 200, t: 12.5, src: SRC.maker } },
+  { id: 'ioniq5n', name: 'Hyundai Ioniq 5 N', variant: '2025 · 650 PS with N Grin Boost', segment: 'Performance', drive: 'AWD', energy: 'EV',
+    kw: 478, kg: 2200, top: 260, cda: 0.82, len: 4.72, wid: 1.94,
+    t100: 3.5, t100Src: SRC.maker,
+    anchor: { metres: QUARTER_MILE, t: 11.1, src: SRC.ioniq },
+    test: { et: 11.1, trapMph: 123, src: SRC.ioniq } },
+  { id: 'g63', name: 'Mercedes-AMG G 63', variant: '2025 · 4.0 V8 mild hybrid', segment: 'SUV', drive: 'AWD', energy: 'ICE',
+    kw: 430, kg: 2640, top: 220, cda: 1.50, len: 4.87, wid: 1.98,
+    t100: 4.4, t100Src: SRC.maker },
+  { id: 'golfr', name: 'Volkswagen Golf R', variant: 'Mk8.5 · 2.0 TSI, 333 PS', segment: 'Hot hatch', drive: 'AWD', energy: 'ICE',
+    kw: 245, kg: 1560, top: 250, cda: 0.60, len: 4.29, wid: 1.79,
+    t100: 4.6, t100Src: SRC.maker },
+  { id: 'typer', name: 'Honda Civic Type R', variant: 'FL5 · 2.0 VTEC Turbo, manual', segment: 'Hot hatch', drive: 'FWD', energy: 'ICE',
+    kw: 242, kg: 1430, top: 275, cda: 0.68, len: 4.59, wid: 1.89,
+    t100: 5.4, t100Src: SRC.typeR,
+    test: { et: 13.5, trapMph: 106, src: { label: 'Car and Driver test as quoted on CivicX forum (secondhand)', url: 'https://www.civicxi.com/forum/goto/post?id=844209' } } },
+  { id: 'gryaris', name: 'Toyota GR Yaris', variant: '2020 · 1.6 three-cylinder turbo', segment: 'Hot hatch', drive: 'AWD', energy: 'ICE',
+    kw: 192, kg: 1280, top: 230, cda: 0.64, len: 4.00, wid: 1.81,
+    t100: 5.5, t100Src: SRC.yaris,
+    test: { et: 13.2, trapMph: 105, src: { label: 'MOTOR magazine test: 13.2 s @ 169 km/h (WhichCar)', url: 'https://www.whichcar.com.au/?p=524752' } } },
+  { id: 'mx5', name: 'Mazda MX-5', variant: 'ND2 · 2.0 Skyactiv-G, 184 PS', segment: 'Roadster', drive: 'RWD', energy: 'ICE',
+    kw: 135, kg: 1100, top: 219, cda: 0.59, len: 3.92, wid: 1.74,
+    t100: 6.5, t100Src: SRC.maker },
+
+  // ── Everyday cars ────────────────────────────────────────────────────────
+  { id: 'camry', name: 'Toyota Camry Hybrid', variant: 'XV70 · 2.5 hybrid, 218 PS', segment: 'Family', drive: 'FWD', energy: 'Hybrid',
+    kw: 160, kg: 1595, top: 180, cda: 0.64, len: 4.89, wid: 1.84,
+    t100: 8.3, t100Src: SRC.maker },
+  { id: 'golf', name: 'Volkswagen Golf 1.5 eTSI', variant: 'Mk8 · 150 PS, DSG', segment: 'Family', drive: 'FWD', energy: 'ICE',
+    kw: 110, kg: 1360, top: 224, cda: 0.60, len: 4.28, wid: 1.79,
+    t100: 8.5, t100Src: SRC.maker },
+  { id: 'corolla', name: 'Toyota Corolla Hybrid', variant: '2023 · 1.8 hybrid, 140 PS', segment: 'Family', drive: 'FWD', energy: 'Hybrid',
+    kw: 103, kg: 1385, top: 180, cda: 0.64, len: 4.37, wid: 1.79,
+    t100: 9.2, t100Src: SRC.maker },
+  { id: 'granta', name: 'Lada Granta', variant: '2024 · 1.6 8V, 90 hp, manual', segment: 'Budget', drive: 'FWD', energy: 'ICE',
+    kw: 66, kg: 1075, top: 176, cda: 0.72, len: 4.28, wid: 1.70,
+    t100: 11.2, t100Src: SRC.granta },
+  { id: 'sandero', name: 'Dacia Sandero TCe 90', variant: '2021 · 1.0 three-cylinder turbo', segment: 'Budget', drive: 'FWD', energy: 'ICE',
+    kw: 67, kg: 1094, top: 178, cda: 0.74, len: 4.09, wid: 1.85,
+    t100: 12.2, t100Src: SRC.maker },
+  { id: 'panda', name: 'Fiat Panda Hybrid', variant: '2020 · 1.0 mild hybrid, 70 PS', segment: 'Budget', drive: 'FWD', energy: 'Hybrid',
+    kw: 51, kg: 955, top: 155, cda: 0.70, len: 3.69, wid: 1.67,
+    t100: 14.7, t100Src: SRC.panda },
+];
+
+export const DEFAULT_RACE = ['plaid', 'turbos', 'golfr', 'corolla'];
