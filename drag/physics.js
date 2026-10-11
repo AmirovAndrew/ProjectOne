@@ -108,6 +108,13 @@ const P_MIN = 2, P_MAX = 3000;
 /** Typical traction limits when only a 0–100 time is known. */
 const TYPICAL_GRIP = { FWD: 0.75 * G, RWD: 0.85 * G, AWD: 1.0 * G };
 
+/**
+ * Average share of peak power reaching the road over a run. Set from the
+ * two-anchor fits: EVs ≈ 0.7–0.85, combustion and hybrid cars ≈ 0.6–0.8
+ * (gear changes and the torque curve cost the rest).
+ */
+const WHEEL_EFFICIENCY = { EV: 0.74, ICE: 0.7, Hybrid: 0.7 };
+
 /** Second anchor's measured time for given parameters. */
 function anchorTime(p, anchor) {
   if (anchor.kmh) return timeToSpeed(p, anchor.kmh);
@@ -140,8 +147,16 @@ export function calibrate(car) {
     return { ...base, A: solveA(P), P, method: 'two-anchor' };
   }
 
-  // Only 0–100 known: assume a typical traction limit for the layout (raised if
-  // the car is quicker than that allows) and solve the power that fits.
+  // Only 0–100 known. First try typical wheel power (rated power × drivetrain
+  // efficiency, averaged over gear changes) and solve the grip that fits.
+  const pRated = (WHEEL_EFFICIENCY[car.energy] || 0.72) * car.kw * 1000 / car.kg;
+  if (t100With(A_MAX, pRated) < t100) {
+    const A = solveA(pRated);
+    if (A >= 0.45 * G && A <= 1.5 * G) return { ...base, A, P: pRated, method: 'rated-power' };
+  }
+
+  // Otherwise assume a typical traction limit for the layout (raised if the
+  // car is quicker than that allows) and solve the power that fits.
   let A = Math.max(TYPICAL_GRIP[car.drive] || G, 1.12 * (100 * KMH) / t100);
   while (t100With(A, P_MAX) > t100 && A < A_MAX) A *= 1.1;
   const P = solveDecreasing((P) => t100With(A, P), t100, P_MIN, P_MAX, 30);

@@ -1,6 +1,6 @@
 # Launch Control — 0–100 km/h on a drag strip
 
-A standalone page in `drag/` that compares 25 cars' 0–100 km/h times and races up
+A standalone page in `drag/` that compares 39 cars' 0–100 km/h times and races up
 to four of them side by side on a top-down, to-scale quarter-mile drag strip.
 
 Open `drag/index.html` through any static server (ES modules don't load from
@@ -20,7 +20,8 @@ Open `drag/index.html` through any static server (ES modules don't load from
 and drag. `A` and `P` are solved per car so the model reproduces the published
 0–100 km/h time exactly, plus a second published figure where one exists
 (an official 0–200 km/h time or a magazine quarter-mile ET). Cars with only a
-0–100 figure get a typical traction limit for their drivetrain. Quarter-mile
+0–100 figure get typical wheel power (a share of rated power) and the grip is
+solved from the 0–100 time. Quarter-mile
 numbers use drag-strip conventions: 1 ft rollout, 66 ft speed trap.
 
 Tests: `tests/unit/drag-physics.test.js` (`cd tests && npm run test:unit`).

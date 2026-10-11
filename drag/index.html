@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Launch Control</title>
-  <meta name="description" content="0–100 km/h times of 25 cars compared side by side on a simulated quarter-mile drag strip.">
+  <meta name="description" content="0–100 km/h times of 39 cars compared side by side on a simulated quarter-mile drag strip.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;700;800&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
@@ -117,7 +117,7 @@
 
       <div class="method">
         <h3>How the simulation works</h3>
-        <p>Each car is a point mass with three limits on its acceleration: tyre grip off the line, engine or motor power (acceleration falls as speed rises), and air drag plus rolling resistance. Grip and power are solved for every car so that the model hits its published 0–100 km/h time exactly. When a second published figure exists, an official 0–200 km/h time or a quarter-mile time from an instrumented magazine test, it pins down the balance between grip and power. Otherwise grip is set to a typical value for the drivetrain and power is solved from the 0–100 time alone.</p>
+        <p>Each car is a point mass with three limits on its acceleration: tyre grip off the line, engine or motor power (acceleration falls as speed rises), and air drag plus rolling resistance. Grip and power are solved for every car so that the model hits its published 0–100 km/h time exactly. When a second published figure exists, an official 0–200 km/h time or a quarter-mile time from an instrumented magazine test, it pins down the balance between grip and power. Otherwise power is set to a typical share of the car's rated output (74 % for EVs, 70 % for combustion and hybrid cars, which lose time to gear changes) and grip is solved from the 0–100 time.</p>
         <p>Quarter-mile times follow drag-racing convention: the clock starts after 1 ft of rollout, and trap speed is the average over the last 66 ft. All cars react to the green light instantly, so the first car to the finish line wins.</p>
         <p>Manufacturer 0–100 km/h claims and magazine tests are measured differently and on different days, so treat small differences between cars as approximate. Gear changes are averaged out rather than shown as individual steps.</p>
       </div>

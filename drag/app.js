@@ -57,7 +57,7 @@ function writeHash() {
 const runners = () => state.lanes.map((id) => (id ? model(id) : null));
 const raceEnd = () => Math.max(0, ...runners().filter(Boolean).map((r) => r.tFinish)) + 1.6;
 const laneColor = (i) => getComputedStyle(document.documentElement).getPropertyValue(`--lane-${i + 1}`).trim() || '#888';
-const shortName = (car) => car.name.replace(/^(Volkswagen|Mercedes-AMG|Chevrolet|Lamborghini|Porsche|Toyota|Tesla|Hyundai|Ferrari|Bugatti|McLaren|Lucid|Rimac|Mazda|Honda|Dacia|Fiat|Lada|BMW)\s+/, '');
+const shortName = (car) => car.name.replace(/^(Volkswagen|Mercedes-AMG|Chevrolet|Lamborghini|Porsche|Toyota|Tesla|Hyundai|Ferrari|Bugatti|McLaren|Lucid|Rimac|Mazda|Honda|Dacia|Fiat|Lada|BMW|Xiaomi|Audi|Kia|BYD|Škoda)\s+/, '');
 
 // ── Kinematics for display ─────────────────────────────────────────────────
 // Cars stage with the front tyre 1 ft behind the beam, so display x is the
