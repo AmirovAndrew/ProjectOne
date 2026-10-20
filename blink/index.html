@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Звук моргания</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:,">
+</head>
+<body>
+
+<main class="app">
+  <header class="head">
+    <h1>Звук моргания</h1>
+    <p class="sub">Смотрите в камеру и моргните — прозвучит сигнал. Видео обрабатывается только в вашем браузере.</p>
+  </header>
+
+  <section class="stage" id="stage" data-state="idle">
+    <video id="video" playsinline muted></video>
+    <canvas id="overlay"></canvas>
+    <div class="flash" id="flash"></div>
+    <button class="start" id="start" type="button">Включить камеру</button>
+  </section>
+
+  <div class="status" id="status" role="status">Камера выключена</div>
+
+  <section class="stats">
+    <div class="stat"><span class="stat-value" id="count">0</span><span class="stat-label">морганий</span></div>
+    <div class="stat"><span class="stat-value" id="rate">—</span><span class="stat-label">в минуту</span></div>
+    <div class="stat meter-wrap">
+      <div class="meter" aria-label="Закрытость глаз">
+        <div class="meter-fill" id="meterFill"></div>
+        <div class="meter-mark" id="meterMark"></div>
+      </div>
+      <span class="stat-label">закрытость глаз</span>
+    </div>
+  </section>
+
+  <section class="controls">
+    <label>Звук
+      <select id="sound">
+        <option value="beep">Бип</option>
+        <option value="pop">Хлопок</option>
+        <option value="bell">Колокольчик</option>
+        <option value="click">Щелчок</option>
+      </select>
+    </label>
+    <label>Громкость
+      <input id="volume" type="range" min="0" max="1" step="0.05" value="0.5">
+    </label>
+    <label>Порог срабатывания <output id="thresholdOut">0.50</output>
+      <input id="threshold" type="range" min="0.2" max="0.9" step="0.01" value="0.5">
+    </label>
+    <label>Режим
+      <select id="mode">
+        <option value="both">Моргание (оба глаза)</option>
+        <option value="any">Подмигивание (любой глаз)</option>
+      </select>
+    </label>
+    <button id="test" type="button">Проверить звук</button>
+    <button id="reset" type="button">Сбросить счётчик</button>
+  </section>
+</main>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
